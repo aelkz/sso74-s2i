@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.redhat.rhsso</groupId>
+    <artifactId>sso74-s2i</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/liucenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>aelkz</id>
+            <name>Raphael Abreu</name>
+            <email>raphael.alex@gmail.com</email>
+            <url>https://github.com/aelkz</url>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <plugin.compiler.version>3.8.1</plugin.compiler.version>
+        <maven.compiler.release>8</maven.compiler.release>
+        <plugin.dependency.version>3.0.2</plugin.dependency.version>
+        <openshift.folder>${project.build.directory}/deployments</openshift.folder>
+        <nexusReleaseRepoUrl></nexusReleaseRepoUrl>
+        <nexusSnapshotRepoUrl></nexusSnapshotRepoUrl>
+    </properties>
+
+    <!-- Build Settings -->
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/openshift</directory>
+                <targetPath>${openshift.folder}</targetPath>
+                <excludes>
+                    <exclude>configmap/**</exclude>
+                    <exclude>secret/**</exclude>
+                    <exclude>templates/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${plugin.compiler.version}</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${plugin.dependency.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludeTransitive>true</excludeTransitive>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                    <overWriteIfNewer>true</overWriteIfNewer>
+                    <outputDirectory>${openshift.folder}</outputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactItems>
+                        <!--
+                        IMPORTANT: this dependency must be installed into customer nexus/artifactory
+                        see: https://mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/
+
+                        <artifactItem>
+                            <groupId>com.oracle.database.jdbc</groupId>
+                            <artifactId>ojdbc7</artifactId>
+                            <version>12.1.0.2.0</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <destFileName>ojdbc7.jar</destFileName>
+                            <outputDirectory>${openshift.folder}/modules/com/oracle/ojdbc/7.0/main</outputDirectory>
+                        </artifactItem>
+                        -->
+                        <artifactItem>
+                            <groupId>com.oracle.database.jdbc</groupId>
+                            <artifactId>ojdbc8</artifactId>
+                            <version>18.3.0.0</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <destFileName>ojdbc8.jar</destFileName>
+                            <outputDirectory>${openshift.folder}/modules/com/oracle/ojdbc/8.0/main</outputDirectory>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.postgresql</groupId>
+                            <artifactId>postgresql</artifactId>
+                            <version>42.2.9</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <destFileName>postgresql.jar</destFileName>
+                            <outputDirectory>${openshift.folder}/modules/org/postgresql/jdbc/main</outputDirectory>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>mysql</groupId>
+                            <artifactId>mysql-connector-java</artifactId>
+                            <version>5.1.48</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <destFileName>mysql.jar</destFileName>
+                            <outputDirectory>${openshift.folder}/modules/com/mysql/jdbc/main</outputDirectory>
+                        </artifactItem>
+                    </artifactItems>
+                    <excludeTransitive>true</excludeTransitive>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                    <overWriteIfNewer>true</overWriteIfNewer>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>openshift</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <checkstyle.skip>true</checkstyle.skip>
+                <openshift.folder>${basedir}/deployments</openshift.folder>
+            </properties>
+
+            <distributionManagement>
+                <repository>
+                    <id>nexus-releases</id>
+                    <url>${nexusReleaseRepoUrl}</url>
+                </repository>
+                <snapshotRepository>
+                    <id>nexus-snapshots</id>
+                    <url>${nexusSnapshotRepoUrl}</url>
+                </snapshotRepository>
+            </distributionManagement>
+
+            <repositories>
+                <!-- maven central repository -->
+                <!-- do not use this in production, use your own maven repository -->
+                <repository>
+                    <id>central</id>
+                    <name>Maven Central Repository</name>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <!-- redhat official maven repositories -->
+                <repository>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>red-hat-ga-repository</id>
+                    <name>Red Hat GA Repository</name>
+                    <url>https://maven.repository.redhat.com/ga</url>
+                </repository>
+                <repository>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>red-hat-ea-repository</id>
+                    <name>Red Hat EA Repository</name>
+                    <url>https://maven.repository.redhat.com/earlyaccess/all/</url>
+                </repository>
+                <repository>
+                    <id>jboss-public-repository-group</id>
+                    <name>JBoss Public Repository Group</name>
+                    <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>maven-ga-repository</id>
+                    <url>https://repo.maven.apache.org/maven2/</url>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>red-hat-ga-repository</id>
+                    <name>Red Hat GA Repository</name>
+                    <url>https://maven.repository.redhat.com/ga</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>red-hat-ea-repository</id>
+                    <name>Red Hat EA Repository</name>
+                    <url>https://maven.repository.redhat.com/earlyaccess/all/</url>
+                </pluginRepository>
+            </pluginRepositories>
+
+        </profile>
+    </profiles>
+
+</project>

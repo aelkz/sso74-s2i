@@ -1,0 +1,2 @@
+The standalone-openshift.xml is not changed manually.
+Instead all customizations are performed with custom .cli script executions (this file is kept only for future references)

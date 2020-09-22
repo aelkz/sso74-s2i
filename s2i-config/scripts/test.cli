@@ -1,0 +1,9 @@
+# admin cli commands to edit the configuration
+embed-server --std-out=echo  --server-config=standalone-openshift.xml
+
+###### START <description>
+###### \
+        /subsystem=datasources/data-source=KeycloakDS:write-attribute(name=min-pool-size,value=5)
+        /subsystem=datasources/data-source=KeycloakDS:write-attribute(name=max-pool-size,value=20)
+###### /
+###### END <description>

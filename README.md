@@ -44,7 +44,7 @@ Expected output:
 
 The final standalone-openshift.xml modified:
 <p align="center">
-<img src="https://raw.githubusercontent.com/aelkz/sso74-s2i/master/_images/output2.png" title="Microservices Security" width="90%" height="90%" />
+<img src="https://raw.githubusercontent.com/aelkz/sso74-s2i/master/_images/output2.png" title="Microservices Security" width="70%" height="70%" />
 </p>
 
 ### REFERENCES

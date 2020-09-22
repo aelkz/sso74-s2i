@@ -1,7 +1,7 @@
 Red Hat Single Sign-On 7.4 custom image example with s2i
 
-<p align="center">
-<img src="https://raw.githubusercontent.com/aelkz/sso74-s2i/master/_images/sso74-openshift-rhel8.png" title="Red Hat Single Sign-On" width="35%" height="35%" />
+<p align="left">
+<img src="https://raw.githubusercontent.com/aelkz/sso74-s2i/master/_images/sso74-openshift-rhel8.png" title="Red Hat Single Sign-On" width="25%" height="25%" />
 </p>
 
 ### INSTALLATION STEPS
@@ -13,7 +13,7 @@ cd sso74-s2i
 
 List all files (double check):
 ```
-> ls -la                                                                                                                                                                                                                                                                   0.02     15:50 22/09/20    192.168.1.197 
+ls -la
   rwxr-xr-x  ..    ./
   rwxr-xr-x  ..    ../
   rwxr-xr-x  ..    .idea/
@@ -29,7 +29,7 @@ List all files (double check):
 
 Pull the base image:
 ```
-> docker pull registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:latest                                                                                                                                                                                                                      15:05 22/09/20    192.168.1.197 
+docker pull registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:latest
 ```
 
 Then, build the custom image with s2i:
